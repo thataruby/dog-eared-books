@@ -2,7 +2,7 @@
 Link to PWS deployement: http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/
 
 ## Step-by-Step Project Implementation
-A breakdown of what i did to execute this project:
+A breakdown of what I did to execute this project:
 ### Creating the Django project
 1. I made a new directory "dog-eared-books" to store the contents of this project
 2. I installed a virtual inviroment in the "dog_eared_books" directory by running this command on the terminal:
@@ -82,3 +82,16 @@ A breakdown of what i did to execute this project:
 20. Finally, I connected the repository to PWS and pushed it to the PWS repository for deployment.
 21. I'm finished!
 
+
+## Diagram
+
+
+## The use of git in software development
+Git is a version control system that helps developers track changes in their codebase, making it easier to manage and collaborate on projects. It allows multiple developers to work on the same project simultaneously, supports branching and merging, and provides a history of all changes, enabling easy rollback to previous versions if needed.
+
+
+## Why Django?
+I believe that one of the reasons Django was chosen is because it uses Python, a language we have been studying since the first semester. This allows students to focus directly on platform-based programming concepts without having to learn a new syntax, as they are already familiar with Python.
+
+## Why are Django Models Called ORMs?
+Django models are called ORMs (Object Relational Mapping) because of their nature of directly converting data into tables. As a result, developers don't need to interact directly with data tables like in SQL but can create and access data directly from the model.
