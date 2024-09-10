@@ -84,7 +84,7 @@ A breakdown of what I did to execute this project:
 
 
 ## Diagram
-(pbp_diagram.jpg)
+![Diagram](pbp_diagram.jpg)
 
 ## The use of git in software development
 Git is a version control system that helps developers track changes in their codebase, making it easier to manage and collaborate on projects. It allows multiple developers to work on the same project simultaneously, supports branching and merging, and provides a history of all changes, enabling easy rollback to previous versions if needed.
