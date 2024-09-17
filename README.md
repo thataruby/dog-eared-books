@@ -1,6 +1,9 @@
-# Assignment 2 
+# Welcome to Dog Eared Books!
 Link to PWS deployement: http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/
+By Athazahra Nabila Ruby - 2306173113, for Platform Based Programming Class
 
+<details>
+<Summary><b>Assignment 2</b></summary>
 ## Step-by-Step Project Implementation
 A breakdown of what I did to execute this project:
 ### Creating the Django project
@@ -96,17 +99,19 @@ I believe that one of the reasons Django was chosen is because it uses Python, a
 ## Why are Django Models Called ORMs?
 Django models are called ORMs (Object Relational Mapping) because of their nature of directly converting data into tables. As a result, developers don't need to interact directly with data tables like in SQL but can create and access data directly from the model.
 
+</details>
 
-# Assignment 3
+<details>
+<Summary><b>Assignment 3</b></summary>
 
 ## Step-by-Step Project Implementation
 
-# Setting up template
-1. 
+### Setting up template
+1. Firstly, I created a new templates folder in the root directory and added base.html that functions as a base view to ensure a consistent design throughout the website and minimize code duplication.
 2. To adjust to the changes, I added BASE_DIR / 'templates' in settings.py to the DjangoTemplates DIR field.
 3. Then I adjusted my main.html file to use base.html as the main template.
 
-# Creating an input form
+### Creating an input form
 4. First, I added an UUID to correctly identify each book and did a model migration.
 ```
 class BookEntry(modelsModel):
@@ -215,7 +220,7 @@ urlpatterns = [
 {% endblock content %}
 ```
 
-# Adding views
+### Adding views
 11. I added 4 functions to views.py to access data in the form of XML, JSON, and both by IDs
 ```
 def show_xml(request):
@@ -235,7 +240,7 @@ def show_json_by_id(request, id):
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 ```
 
-# Creating URL routing to each view
+### Creating URL routing to each view
 12. I then imported those 4 functions to urls.py then implemented their URL routing by adding:
 ```
 urlpatterns = [
@@ -273,3 +278,5 @@ URL JSON
 
 URL JSON by ID
 [JSONID]{pbp_jsonid.jpg}
+
+</details>
