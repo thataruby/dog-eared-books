@@ -1,11 +1,11 @@
-# Assignment 2 Platform-Based Development 
+# Assignment 2 
 Link to PWS deployement: http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/
 
 ## Step-by-Step Project Implementation
 A breakdown of what I did to execute this project:
 ### Creating the Django project
 1. I made a new directory "dog-eared-books" to store the contents of this project
-2. I installed a virtual inviroment in the "dog_eared_books" directory by running this command on the terminal:
+2. I installed a virtual inviroment in the "book_store" directory by running this command on the terminal:
     ```
    python3 -m venv env
    ```
@@ -26,9 +26,9 @@ A breakdown of what I did to execute this project:
     ```
     pip install -r requirements.txt
     ```
-6. I created a new Django project named "dog_eared_books" with the command 
+6. I created a new Django project named "book_store" with the command 
     ```
-    django-admin startproject dog_eared_books .
+    django-admin startproject book_store .
     ```
 7. After the project was installed, I added "localhost" and "127.0.0.1" to the ALLOWED_HOSTS in the settings.py file.
 
@@ -66,7 +66,7 @@ A breakdown of what I did to execute this project:
         path('', show_main, name='show_main'),
     ]
     ```
-16. Then, I edited the urls.py in the dog_eared_books project for overall project with:
+16. Then, I edited the urls.py in the book_store project for overall project with:
     ```
     from django.urls import path, include
 
@@ -95,3 +95,181 @@ I believe that one of the reasons Django was chosen is because it uses Python, a
 
 ## Why are Django Models Called ORMs?
 Django models are called ORMs (Object Relational Mapping) because of their nature of directly converting data into tables. As a result, developers don't need to interact directly with data tables like in SQL but can create and access data directly from the model.
+
+
+# Assignment 3
+
+## Step-by-Step Project Implementation
+
+# Setting up template
+1. 
+2. To adjust to the changes, I added BASE_DIR / 'templates' in settings.py to the DjangoTemplates DIR field.
+3. Then I adjusted my main.html file to use base.html as the main template.
+
+# Creating an input form
+4. First, I added an UUID to correctly identify each book and did a model migration.
+```
+class BookEntry(modelsModel):
+    ...
+   id = models.UUIDField(primary_key = True, default=uuid.uuid4, editable=False)
+   ...
+``` 
+5. Then, I created the file forms.py which is used to create the structure of the form that can accept entries or new item data. It contains:
+```
+from django.forms import ModelForm
+from main.models import BookEntry
+
+class BookEntryForm(ModelForm):
+    class Meta:
+        model = BookEntry
+        fields = ["title", "author", "price", "genre", "summary"]
+```
+6. On views.py, I imported redirect and created a new function which implemented the form and validates the inputs.
+```
+def create_book_entry(request):
+    form = BookEntryForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        form.save()
+        return redirect('main:show_main')
+
+    context = {'form': form}
+    return render(request, "create_book_entry.html", context)
+```
+7. I modified the show_main function so that it stores all of the entries.
+```
+def show_main(request):
+    book_entries = BookEntry.objects.all()
+
+    context = {
+        'application_name': 'dog-eared-books',
+        'class': 'PBP KKI',
+        'name': 'Athazahra Nabila Ruby',
+        'book_entries': book_entries
+    }
+
+    return render(request, "main.html", context)
+```
+8. I then imported the create_book_entry function to urls.py and implemented its URL routing by adding:
+```
+urlpatterns = [
+   ...
+   path('create-book-entry', create_book_entry, name='create_book_entry')
+]
+```
+9. I created create_book_entry.html to add a HTML page on submitting the entries, it contains:
+```
+{% extends 'base.html' %} 
+{% block content %}
+<h1>Add New Book Entry</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+    <tr>
+      <td></td>
+      <td>
+        <input type="submit" value="Add Book Entry" />
+      </td>
+    </tr>
+  </table>
+</form>
+
+{% endblock %}
+```
+10. Then I modified my main.html to add a button that redirects to the entry submission and displays said entries as a table:
+```
+...
+{% if not book_entries %}
+<p>Sorry, there are no books available!</p>
+{% else %}
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Author</th>
+    <th>Price</th>
+    <th>Genre</th>
+    <th>Summary</th>
+  </tr>
+
+  {% comment %} This is how to display book data
+  {% endcomment %} 
+  {% for book_entry in book_entries %}
+  <tr>
+    <td>{{book_entry.title}}</td>
+    <td>{{book_entry.author}}</td>
+    <td>{{book_entry.price}}</td>
+    <td>{{book_entry.genre}}</td>
+    <td>{{book_entry.summary}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<br />
+
+<a href="{% url 'main:create_book_entry' %}">
+  <button>Add New book Entry</button>
+</a>
+{% endblock content %}
+```
+
+# Adding views
+11. I added 4 functions to views.py to access data in the form of XML, JSON, and both by IDs
+```
+def show_xml(request):
+    data = BookEntry.objects.all()
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json(request):
+    data = BookEntry.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_xml_by_id(request, id):
+    data = BookEntry.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json_by_id(request, id):
+    data = BookEntry.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+```
+
+# Creating URL routing to each view
+12. I then imported those 4 functions to urls.py then implemented their URL routing by adding:
+```
+urlpatterns = [
+    ...
+    path('xml/', show_xml, name='show_xml'),
+    path('json/', show_json, name='show_json'),
+    path('xml/<str:id>/', show_xml_by_id, name='show_xml_by_id'),
+    path('json/<str:id>/', show_json_by_id, name='show_json_by_id'),
+]
+```
+13. Lastly, I deployed the changes I made to PWS and Github.
+14. I'm done!
+
+## Why do we need data delivery in implementing a platform?
+In the process of implementing a platform, data delivery is important because it facilitates communication between clients, servers, and other systems. This process ensures that information can be sent quickly, securely, and efficiently. Without proper data delivery, the platform would feel slow and inefficient, which could reduce user interest.
+
+## Which is better, XML or JSON? Why is JSON more popular than XML?
+In my opinion, JSON is better and more popular than XML because JSON has a simpler structure and appearance, making it easier for humans to read. Moreover, JSON processing tends to be faster and more efficient for data exchange due to its lower complexity compared to XML.
+
+## What is the usage of is_valid() in Django forms? Why do we need the method in forms?
+The is_valid() method in Django forms is used to check the validity of the data entered. If the data entered meets the form's requirements (such as data type, data length), then is_valid() will return True, otherwise, it will return False. This method is needed because it verifies and ensures that the data to be entered into the database is correct. Additionally, this method simplifies management in case there are errors when the entered data is not valid.
+
+## Why do we need csrf_token when creating a form in Django? What could happen if we did not use csrf_token on a Django form? How could this be leveraged by an attacker?
+The csrf_token is important to protect web applications from Cross-Site Request Forgery (CSRF) attacks, where an attacker can trick an authenticated user into sending malicious requests to the server without their knowledge. Without a csrf_token, the server cannot differentiate between a legitimate request and a malicious one, allowing attackers to abuse the user’s session to perform unintended actions. Therefore, the csrf_token ensures that every request originates from a legitimate and secure source.
+
+## Postaman Screenshots
+URL XML
+[XML]{pbp_xml.jpg}
+
+URL XML by ID
+[XMLID]{pbp_xmlid.jpg}
+
+URL JSON
+[JSON]{pbp_json.jpg}
+
+URL JSON by ID
+[JSONID]{pbp_jsonid.jpg}
