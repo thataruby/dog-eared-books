@@ -5,6 +5,7 @@ Platform Based Programming KKI 2024/2025
 
 <details>
 <Summary><b>Assignment 2</b></summary>
+
 ## Step-by-Step Project Implementation
 A breakdown of what I did to execute this project:
 ### Creating the Django project
