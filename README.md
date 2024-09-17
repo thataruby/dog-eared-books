@@ -89,7 +89,7 @@ A breakdown of what I did to execute this project:
 
 
 ## Diagram
-![Diagram](pbp_diagram.jpg)
+![Diagram](images/pbp_diagram.jpg)
 
 ## The use of git in software development
 Git is a version control system that helps developers track changes in their codebase, making it easier to manage and collaborate on projects. It allows multiple developers to work on the same project simultaneously, supports branching and merging, and provides a history of all changes, enabling easy rollback to previous versions if needed.
@@ -270,15 +270,15 @@ The csrf_token is important to protect web applications from Cross-Site Request 
 
 ## Postman Screenshots
 XML
-![XML](pbp_xml.jpg)
+![XML](images/pbp_xml.jpg)
 
 XML by ID
-![XMLID](pbp_xmlid.jpg)
+![XMLID](images/pbp_xmlid.jpg)
 
 JSON
-![JSON](pbp_json.jpg)
+![JSON](images/pbp_json.jpg)
 
 SON by ID
-![JSONID](pbp_jsonid.jpg)
+![JSONID](images/pbp_jsonid.jpg)
 
 </details>
