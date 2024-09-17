@@ -1,6 +1,7 @@
 # Welcome to Dog Eared Books!
 Link to PWS deployement: [Dog Eared Books](http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/)  
-By Athazahra Nabila Ruby - 2306173113
+By Athazahra Nabila Ruby - 2306173113  
+Platform Based Programming KKI 2024/2025
 
 <details>
 <Summary><b>Assignment 2</b></summary>
@@ -266,17 +267,17 @@ The is_valid() method in Django forms is used to check the validity of the data 
 ## Why do we need csrf_token when creating a form in Django? What could happen if we did not use csrf_token on a Django form? How could this be leveraged by an attacker?
 The csrf_token is important to protect web applications from Cross-Site Request Forgery (CSRF) attacks, where an attacker can trick an authenticated user into sending malicious requests to the server without their knowledge. Without a csrf_token, the server cannot differentiate between a legitimate request and a malicious one, allowing attackers to abuse the user’s session to perform unintended actions. Therefore, the csrf_token ensures that every request originates from a legitimate and secure source.
 
-## Postaman Screenshots
-URL XML
+## Postman Screenshots
+XML
 ![XML](pbp_xml.jpg)
 
-URL XML by ID
+XML by ID
 ![XMLID](pbp_xmlid.jpg)
 
-URL JSON
+JSON
 ![JSON](pbp_json.jpg)
 
-URL JSON by ID
+SON by ID
 ![JSONID](pbp_jsonid.jpg)
 
 </details>
