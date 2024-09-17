@@ -1,6 +1,6 @@
 # Welcome to Dog Eared Books!
-Link to PWS deployement: http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/
-By Athazahra Nabila Ruby - 2306173113, for Platform Based Programming Class
+Link to PWS deployement: [Dog Eared Books](http://athazahra-nabila-dogearedbooks.pbp.cs.ui.ac.id/)  
+By Athazahra Nabila Ruby - 2306173113
 
 <details>
 <Summary><b>Assignment 2</b></summary>
@@ -268,15 +268,15 @@ The csrf_token is important to protect web applications from Cross-Site Request 
 
 ## Postaman Screenshots
 URL XML
-[XML]{pbp_xml.jpg}
+![XML](pbp_xml.jpg)
 
 URL XML by ID
-[XMLID]{pbp_xmlid.jpg}
+![XMLID](pbp_xmlid.jpg)
 
 URL JSON
-[JSON]{pbp_json.jpg}
+![JSON](pbp_json.jpg)
 
 URL JSON by ID
-[JSONID]{pbp_jsonid.jpg}
+![JSONID](pbp_jsonid.jpg)
 
 </details>
