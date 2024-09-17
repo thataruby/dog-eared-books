@@ -1,8 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
 <h1>Dog-eared Books</h1>
 
 <h5>Application Name: </h5>
 <p>{{ application_name }}</p> 
+
 <h5>Name: </h5>
 <p>{{ name }}</p>
+
 <h5>Class: </h5>
 <p>{{ class }}</p> 
+
+{% if not book_entries %}
+<p>Sorry, there are no books available!</p>
+{% else %}
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Author</th>
+    <th>Price</th>
+    <th>Genre</th>
+    <th>Summary</th>
+  </tr>
+
+  {% comment %} This is how to display book data
+  {% endcomment %} 
+  {% for book_entry in book_entries %}
+  <tr>
+    <td>{{book_entry.title}}</td>
+    <td>{{book_entry.author}}</td>
+    <td>{{book_entry.price}}</td>
+    <td>{{book_entry.genre}}</td>
+    <td>{{book_entry.summary}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<br />
+
+<a href="{% url 'main:create_book_entry' %}">
+  <button>Add New book Entry</button>
+</a>
+{% endblock content %}

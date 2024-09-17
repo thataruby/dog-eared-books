@@ -1,5 +1,5 @@
 """
-ASGI config for dog_eared_books project.
+ASGI config for book_store project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
