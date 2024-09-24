@@ -282,3 +282,233 @@ SON by ID
 ![JSONID](images/pbp_jsonid.jpg)
 
 </details>
+
+
+<details>
+<Summary><b>Assignment 4</b></summary>
+
+## Step-by-Step Project Implementation
+
+### Implement the register, login, and logout functions & using data from cookies
+1. I first activated the virtual enviroment by running:
+```
+source env/bin/activate
+```
+2. In views.py, I imported:
+- UserCreationForm to implement the register function
+- AuthenticationForms, authenticate, and login to implement the login function
+- logout to implement the logout functions 
+- datetime, HttpResponseRedirect, and reverse to use cookies. 
+I then added those three functions (register, login, logout) to the file:
+```
+def register(request):
+    form = UserCreationForm()
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your account has been successfully created!')
+            return redirect('main:login')
+    context = {'form':form}
+    return render(request, 'register.html', context)
+
+def login_user(request):
+   if request.method == 'POST':
+      form = AuthenticationForm(data=request.POST)
+
+      if form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        response = HttpResponseRedirect(reverse("main:show_main"))
+        response.set_cookie('last_login', str(datetime.datetime.now()))
+        return response
+
+   else:
+      form = AuthenticationForm(request)
+   context = {'form': form}
+   return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    response = HttpResponseRedirect(reverse('main:login'))
+    response.delete_cookie('last_login')
+    return response
+```
+3. To use cookies for the login, I modified show_main:
+```
+def show_main(request):
+...
+                'last_login': request.COOKIES['last_login'],
+        }
+        return render(request, "main.html", context)  
+...
+```
+
+4. I created an HTML file called "register.html" to display the register page.
+```
+{% extends 'base.html' %} {% block meta %}
+<title>Register</title>
+{% endblock meta %} {% block content %}
+
+<div class="login">
+  <h1>Register</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    <table>
+      {{ form.as_table }}
+      <tr>
+        <td></td>
+        <td><input type="submit" name="submit" value="Register" /></td>
+      </tr>
+    </table>
+  </form>
+
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+{% endblock content %}
+```
+5. I created an HTML file called "login.html" to display the login page.
+```
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Login</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="login">
+  <h1>Login</h1>
+
+  <form method="POST" action="">
+    {% csrf_token %}
+    <table>
+      {{ form.as_table }}
+      <tr>
+        <td></td>
+        <td><input class="btn login_btn" type="submit" value="Login" /></td>
+      </tr>
+    </table>
+  </form>
+
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} Don't have an account yet?
+  <a href="{% url 'main:register' %}">Register Now</a>
+</div>
+
+{% endblock content %}
+```
+6. I also created a "logout" button and displayed the last login data on the main page by adding this to main.html:
+```
+<a href="{% url 'main:logout' %}">
+  <button>Logout</button>
+</a>
+
+<h5>Last login session: {{ last_login }}</h5>
+```
+7. Next, I performed URL routing by importing the register, login, and logout functions to urls.py then added these paths to urlpatterns:
+```
+path('register/', register, name='register'),
+path('login/', login_user, name='login'),
+path('logout/', logout_user, name='logout'),
+```
+8. To force users to login before accessing the site, I imported login_required to views.py then added the restriction to the show_main function:
+```
+@login_required(login_url='/login')
+```
+
+### Make two user accounts with three dummy data each
+9. I created two acounts on my page, namely "voicemail337" and "dogears" and I added some book entries.  
+voicemail337:
+![voicemail337](images/voicemail337.jpg)
+dogears:
+![dogears](images/dogears.jpg)
+
+### Connect the models Product (BookEntry) and User
+10. In models.py, I imported User then modified my BookEntry class by adding:
+```
+user = models.ForeignKey(User, on_delete=models.CASCADE)
+```
+11. In views.py, I modified show_main so that only authorized users can view their Product models. I also modified create_book_entry to modify the user field before saving it to the database
+```
+def show_main(request):
+    book_entries = BookEntry.objects.filter(user=request.user)
+
+    context = {
+        ...
+        'name': request.user.username,
+        ...
+    }
+
+def create_book_entry(request):
+    form = BookEntryForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        book_entry = form.save(commit=False)
+        book_entry.user = request.user
+        book_entry.save()
+        return redirect('main:show_main')
+
+    context = {'form': form}
+    return render(request, "create_book_entry.html", context)
+```
+12. Lastly, I did model migrations by running
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+## What is the difference between HttpResponseRedirect() and redirect()?
+The difference between HttpResponseRedirect() and redirect() lies in how they are used to perform URL redirects and the level of control they offer.
+
+- HttpResponseRedirect(): Returns an HTTP 302 response to redirect to a specified URL. It’s useful when you need more control over the response before returning it, such as redirecting to an external site.
+- redirect(): Internally uses HttpResponseRedirect(). It is more practical and flexible because it can accept different types of parameters, such as URLs, named URL patterns, or model instances.
+
+In short, redirect() is simpler and more flexible, making it easier to use for various scenarios. HttpResponseRedirect(), on the other hand, is better when more control over the response is needed.
+
+## How the BookEntry model is linked with User
+The BookEntry model is linked to the User model through a foreign key (on models.py):
+```
+class BookEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+```
+When a BookEntry is created using the create_book_entry function (on views.py), it is linked to the corresponding User.
+```
+def create_book_entry(request):
+    form = BookEntryForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        book_entry = form.save(commit=False)
+        book_entry.user = request.user
+```
+
+## What is the difference between authentication and authorization, and what happens when a user logs in?
+Authentication is the process of verifying a user's identity to ensure they are who they claim to be. For example, entering a username, password, or OTP during login. In Django, authentication is handled by the authenticate() and login() functions. 
+
+Authorization is about determining what actions or resources a user is allowed to access after they have been authenticated. In Django, authorization is managed using permissions and groups, and decorators like @login_required and @permission_required help control access to views.
+
+When a user logs in:
+1. Provide Credentials: User submits username and password
+2. Authentication: The system verifies if the credentials match stored data using Django's authenticate() function
+3. Session Creation: If authenticated, Django creates a session for the user, storing the session ID as a cookie in the browser
+4. Authorization: The system checks the user's permissions and roles to determine accessible resources
+5. Redirect: If successful, the user is redirected to a target page
+
+## How does Django remember logged-in users? Explain other uses of cookies and whether all cookies are safe to use.
+Django remembers logged-in users through sessions stored in cookies. When a user logs in, Django creates a session, stores the session data on the server, and assigns a unique session ID to the user. This session ID is sent to the user's browser as a cookie called sessionid. Every time the user makes a new request, the browser sends the sessionid cookie back to the server, allowing Django to identify the user.
+
+Cookies can also be used for storing user preferences, tracking, shopping carts in e-commerce, and security tokens. However, not all cookies are safe to use. There are key concerns regarding their security and privacy. Cookies can be vulnerable to attacks such as Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF) if they are not properly managed. Additionally, tracking cookies can raise significant privacy issues, as they often collect data on user behavior without explicit consent.
+
