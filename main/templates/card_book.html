@@ -1,0 +1,36 @@
+<div class="relative w-64 h-80 bg-white shadow-lg rounded-lg mb-4 border-2 border-gray-300 overflow-hidden flex transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+    <!-- Left "book spine" part -->
+    <div class="w-1/5 bg-red-500 text-white p-4 flex flex-col justify-center rounded-l-lg">
+    </div>
+  
+    <!-- Right side containing book details -->
+    <div class="p-4 flex-1 bg-gray-50 rounded-r-lg flex flex-col">
+      <!-- Book Title -->
+      <h3 class="font-bold text-xl text-gray-800 mb-2">{{ book_entry.title }}</h3>
+      <!-- Book Author -->
+      <p class="text-gray-600 italic mb-2">by {{ book_entry.author }}</p>
+      <!-- Book Genre -->
+      <p class="text-indigo-700 font-semibold mb-1">Genre: {{ book_entry.genre }}</p>
+      <!-- Book Price -->
+      <p class="text-green-600 font-bold mb-4">Price: ${{ book_entry.price }}</p>
+      
+      <!-- Book Summary -->
+      <p class="text-gray-700 flex-grow mb-2 overflow-hidden text-ellipsis whitespace-normal">
+        {{ book_entry.summary }}
+      </p>
+  
+      <!-- Edit and Delete buttons styled like book tabs -->
+      <div class="flex justify-end space-x-2 mt-4">
+        <a href="{% url 'main:edit_book' book_entry.pk %}" class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-4-4m0 0l4-4m-4 4h12"/>
+          </svg>
+        </a>
+        <a href="{% url 'main:delete_book' book_entry.pk %}" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+</div>

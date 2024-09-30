@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core import serializers
 from main.forms import BookEntryForm
@@ -87,3 +87,23 @@ def logout_user(request):
     response.delete_cookie('last_login')
     return response
 
+def edit_book(request, id):
+    book = BookEntry.objects.get(pk = id)
+
+    form = BookEntryForm(request.POST or None, instance=book)
+
+    if form.is_valid() and request.method == "POST":
+        # Save form and return to home page
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_book.html", context)
+
+def delete_book(request, id):
+    # Get book based on id
+    book = BookEntry.objects.get(pk = id)
+    # Delete book
+    book.delete()
+    # Return to home page
+    return HttpResponseRedirect(reverse('main:show_main'))
