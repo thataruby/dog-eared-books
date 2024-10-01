@@ -520,13 +520,13 @@ Cookies can also be used for storing user preferences, tracking, shopping carts 
 
 ### Implement functions to delete and edit products.
 1. Firstly, I imported the Tailwind CDN on base.html by addding:
-```
+```html
 <script src="https://cdn.tailwindcss.com">
 </script>
 ```
 
 2. I imported 'reverse' then created an edit and delete function on views.py
-```
+```py
 def edit_book(request, id):
     book = BookEntry.objects.get(pk = id)
 
@@ -550,7 +550,7 @@ def delete_book(request, id):
 ```
 3. I then created an html file called "edit_book.html" as the editing page
 4. To perform URL routing, I imported the edit and delete functions to urls.py then added these paths:
-```
+```py
 urlpatterns = [
 ...
         path('edit-product/<uuid:id>', edit_book, name='edit_book'),
@@ -558,7 +558,7 @@ urlpatterns = [
 ]
 ```
 5. I modified main.html to create an edit and delete button by adding:
-```
+```html
 <td>
         <a href="{% url 'main:edit_book' book_entry.pk %}">
             <button>
@@ -574,20 +574,346 @@ urlpatterns = [
         </a>
     </td>
 ```
+### Customize the design of the HTML templates
+For all my customizations, I followed a color pallete: green-900, white, and black with B&W photos as the backgrounds.  
+6. I first created a 'global.css' file on static/css to manage the general appearance of the website, I also added images that I want to add to the website to static/image
+```css
+.form-style form input, form textarea, form select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #bcbcbc;
+    border-radius: 0.375rem;
+}
+.form-style form input:focus, form textarea:focus, form select:focus {
+    outline: none;
+    border-color: #092b06;
+    box-shadow: 0 0 0 3px #092b06;
+}
+@keyframes shine {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.animate-shine {
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.3));
+    background-size: 200% 100%;
+    animation: shine 3s infinite;
+}
+```
+#### Customize the login, register, and add product pages
+7. I customized those pages by modifying these files:  
+'login.html'
+```html
+{% extends 'base.html' %}
+{% load static %}
 
-### Customize the login, register, and add product pages
-BELOM
+{% block meta %}
+<title>Login</title>
+{% endblock meta %}
 
-### Customize the product list page
-BELOM
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[url('{% static "image/aeon13.webp" %}')] bg-cover bg-center bg-fixed flex flex-col">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-white text-3xl font-extrabold text-gray-900">
+        Login to your account
+      </h2>
+    </div>
+    <form class="mt-8 space-y-6" method="POST" action="">
+      {% csrf_token %}
+      <input type="hidden" name="remember" value="true">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="username" class="sr-only">Username</label>
+          <input id="username" name="username" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-900 focus:border-green-900 focus:z-10 sm:text-sm" placeholder="Username">
+        </div>
+        <div>
+          <label for="password" class="sr-only">Password</label>
+          <input id="password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-900 focus:border-green-900 focus:z-10 sm:text-sm" placeholder="Password">
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-900 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-900">
+          Sign in
+        </button>
+      </div>
+    </form>
+
+    {% if messages %}
+    <div class="mt-4">
+      {% for message in messages %}
+      {% if message.tags == "success" %}
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% elif message.tags == "error" %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% else %}
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <p class="text-sm text-white">
+        Don't have an account yet?
+        <a href="{% url 'main:register' %}" class="font-medium text-green-700 hover:text-green-900">
+          Register Now
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+```
+'register.html'
+```html
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Register</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[url('{% static "image/aeon9.webp" %}')] bg-cover bg-center bg-fixed flex flex-col">
+
+  <div class="max-w-md w-full space-y-8 form-style">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-green-900">
+        Create your account
+      </h2>
+    </div>
+    <form class="mt-8 space-y-6" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="remember" value="true">
+      <div class="rounded-md shadow-sm -space-y-px">
+        {% for field in form %}
+          <div class="{% if not forloop.first %}mt-4{% endif %}">
+            <label for="{{ field.id_for_label }}" class="mb-2 font-semibold text-white">
+              {{ field.label }}
+            </label>
+            <div class="relative">
+              {{ field }}
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                {% if field.errors %}
+                  <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                {% endif %}
+              </div>
+            </div>
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div>
+        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-800 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Register
+        </button>
+      </div>
+    </form>
+
+    {% if messages %}
+    <div class="mt-4">
+      {% for message in messages %}
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <span class="block sm:inline">{{ message }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <p class="text-sm text-black">
+        Already have an account?
+        <a href="{% url 'main:login' %}" class="font-medium text-green-700 hover:text-green-900">
+          Login here
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+```
+'create_book_entry.html'
+```html
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<title>Create Book</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="min-h-screen bg-[url('{% static "image/aeon7.webp" %}')] bg-cover bg-center bg-fixed flex flex-col">
+  <div class="container mx-auto px-4 py-8 mt-16 max-w-xl">
+    <h1 class="text-3xl font-bold text-center mb-8 text-green-900">Create Book Entry</h1>
+  
+    <div class="bg-white shadow-md rounded-lg p-6 form-style">
+      <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="flex flex-col">
+            <label for="{{ field.id_for_label }}" class="mb-2 font-semibold text-green-900">
+              {{ field.label }}
+            </label>
+            <div class="w-full">
+              {{ field }}
+            </div>
+            {% if field.help_text %}
+              <p class="mt-1 text-sm text-green-900">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <div class="flex justify-center mt-6">
+          <button type="submit" class="bg-green-900 text-white font-semibold px-6 py-3 rounded-lg hover:bg-greeen-700 transition duration-300 ease-in-out w-full">
+            Create Book Entry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+```
 
 ### For each product card, create two buttons to edit and delete the product
-BELOM
+9. I customized my cards so that it resembles a book then added those two buttons by modifying 'card_book.html'
+```html
+<div class="relative w-64 h-80 bg-white shadow-lg rounded-lg mb-2 border-2 border-gray-300 overflow-hidden flex transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+    <!-- left side -->
+    <div class="w-1/5 bg-green-900 text-white p-4 flex flex-col justify-center rounded-l-lg">
+    </div>
+  
+    <!-- right side -->
+    <div class="p-4 flex-1 bg-gray-50 rounded-r-lg flex flex-col">
+      <!-- book title -->
+      <h3 class="font-bold text-xl text-gray-800 mb-1">{{ book_entry.title }}</h3>
+      <!-- book author -->
+      <p class="text-gray-600 italic mb-2">by {{ book_entry.author }}</p>
+      <!-- book genre -->
+      <p class="text-green-700 font-semibold mb-1">Genre: {{ book_entry.genre }}</p>
+      <!-- book price -->
+      <p class="text-green-600 font-bold mb-3">Price: ${{ book_entry.price }}</p>
+      
+      <!-- book summary -->
+      <p class="text-gray-700 flex-grow overflow-scroll whitespace-normal text-sm">
+        {{ book_entry.summary }}
+      </p>
+  
+      <!-- edit and delete buttons  -->
+      <div class="flex justify-end space-x-2 mt-2">
+        <a href="{% url 'main:edit_book' book_entry.pk %}" class="bg-red-700 hover:bg-yellow-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          </svg>
+        </a>
+        <a href="{% url 'main:delete_book' book_entry.pk %}" class="bg-red-800 hover:bg-red-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+```
 
 ### Create a navigation bar
-BELOM
+10. Created 'navbar.html' on /templates which consists of:
+```html
+<nav class="bg-green-900 shadow-lg fixed top-0 left-0 z-40 w-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-center text-white">Dog Eared Books</h1>
+        </div>
+        <div class="hidden md:flex items-center">
+          {% if user.is_authenticated %}
+            <span class="text-gray-300 mr-4">Welcome, {{ user.username }}</span>
+            <a href="{% url 'main:logout' %}" class="text-center bg-black hover:bg-black text-white font-bold py-2 px-4 rounded transition duration-300">
+              Logout
+            </a>
+          {% else %}
+            <a href="{% url 'main:login' %}" class="text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 mr-2">
+              Login
+            </a>
+            <a href="{% url 'main:register' %}" class="text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+              Register
+            </a>
+          {% endif %}
+        </div>
+        <div class="md:hidden flex items-center">
+          <button class="mobile-menu-button">
+            <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile menu -->
+    <div class="mobile-menu hidden md:hidden  px-4 w-full md:max-w-full">
+      <div class="pt-2 pb-3 space-y-1 mx-auto">
+        {% if user.is_authenticated %}
+          <span class="block text-gray-300 px-3 py-2">Welcome, {{ user.username }}</span>
+          <a href="{% url 'main:logout' %}" class="block text-center bg-black hover:bg-black text-white font-bold py-2 px-4 rounded transition duration-300">
+            Logout
+          </a>
+        {% else %}
+          <a href="{% url 'main:login' %}" class="block text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 mb-2">
+            Login
+          </a>
+          <a href="{% url 'main:register' %}" class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+            Register
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <script>
+      const btn = document.querySelector("button.mobile-menu-button");
+      const menu = document.querySelector(".mobile-menu");
+    
+      btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+      });
+    </script>
+  </nav>
+```
 
-
+### Finishing
+11. In 'settings.py', I added the WhiteNoise middleware so that Django can automatically manage static files, and I also configured STATIC_ROOT, STATICFILES_DIRS, and STATIC_URL
+```py
+MIDDLEWARE = [
+    ...
+    'whitenoise.middleware.WhiteNoiseMiddleware'
+    ...
+]
+...
+STATIC_URL = '/static/'
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static' 
+    ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static' 
+...
+```
 
 ## Explain the priority order of CSS selectors for an HTML element
 The order:
@@ -604,7 +930,7 @@ Responsive design is crucial in web development to ensure a website looks and fu
 ## Explain the differences between margin, border, and padding, and how to implement these three things!
 These are CSS properties used to control space around and inside elements. Margin is the space outside the element, border is the line around the element's box, and padding is the space inside the element between the content and the border. 
 
-You can implement them using properties like 
+You can implement them using properties like:
 ```
 {
   margin: 10px;, 
@@ -612,7 +938,6 @@ You can implement them using properties like
   padding: 5px;, 
 }
 ```
-each providing control over spacing and layout appearance.
 
 ## Explain the concepts of flex box and grid layout along with their uses!
 Flexbox: a one-dimensional layout system (either horizontal or vertical) used to distribute space between items in a container, making it ideal for aligning items in rows or columns. 
