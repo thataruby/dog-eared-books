@@ -4,30 +4,31 @@
 {% block meta %}
 <title>Dog Eared Books</title>
 {% endblock meta %}
+
 {% block content %}
 {% include 'navbar.html' %}
-<div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-gray-100 flex flex-col">
+<div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-[url('{% static "image/aeon3.webp" %}')] bg-cover bg-center bg-fixed flex flex-col">
   <div class="p-2 mb-6 relative">
     <div class="relative grid grid-cols-1 z-30 md:grid-cols-2 gap-8">
       {% include "card_info.html" with title='Name' value=name %}
       {% include "card_info.html" with title='Class' value=class %}
     </div>
     <div class="w-full px-6  absolute top-[44px] left-0 z-20 hidden md:flex">
-      <div class="w-full min-h-4 bg-indigo-700"></div>
+      <div class="w-full min-h-4 bg-green-900"></div>
     </div>
     <div class="h-full w-full py-6  absolute top-0 left-0 z-20 md:hidden flex ">
-      <div class="h-full min-w-4 bg-indigo-700 mx-auto"></div>
+      <div class="h-full min-w-4 bg-green-900 mx-auto"></div>
     </div>
   </div>
 
   <div class="px-3 mb-4">
-    <div class="flex rounded-md items-center bg-indigo-600 py-2 px-4 w-fit">
+    <div class="flex rounded-md items-center bg-green-900 py-2 px-4 w-fit">
       <h1 class="text-white text-center">Last Login: {{last_login}}</h1>
     </div>
   </div>
 
   <div class="flex justify-end mb-6">
-    <a href="{% url 'main:create_book_entry' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+    <a href="{% url 'main:create_book_entry' %}" class="bg-green-900 hover:bg-green-900 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
       Add New Book Entry
     </a>
   </div>
@@ -38,10 +39,12 @@
     <p class="text-center text-gray-600 mt-4">Oh No! There are no books on the shelves.</p>
   </div>
   {% else %}
-  <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full">
-    {% for book_entry in book_entries %}
-      {% include 'card_book.html' with book_entry=book_entry %}
-    {% endfor %}
+  <div class="w-full px-4">
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
+      {% for book_entry in book_entries %}
+        {% include 'card_book.html' with book_entry=book_entry %}
+      {% endfor %}
+    </div>    
   </div>
   {% endif %}
 </div>

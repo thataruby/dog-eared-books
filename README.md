@@ -511,4 +511,113 @@ When a user logs in:
 Django remembers logged-in users through sessions stored in cookies. When a user logs in, Django creates a session, stores the session data on the server, and assigns a unique session ID to the user. This session ID is sent to the user's browser as a cookie called sessionid. Every time the user makes a new request, the browser sends the sessionid cookie back to the server, allowing Django to identify the user.
 
 Cookies can also be used for storing user preferences, tracking, shopping carts in e-commerce, and security tokens. However, not all cookies are safe to use. There are key concerns regarding their security and privacy. Cookies can be vulnerable to attacks such as Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF) if they are not properly managed. Additionally, tracking cookies can raise significant privacy issues, as they often collect data on user behavior without explicit consent.
+</details>
 
+<details>
+<Summary><b>Assignment 5</b></summary>
+
+## Step-by-Step Project Implementation
+
+### Implement functions to delete and edit products.
+1. Firstly, I imported the Tailwind CDN on base.html by addding:
+```
+<script src="https://cdn.tailwindcss.com">
+</script>
+```
+
+2. I imported 'reverse' then created an edit and delete function on views.py
+```
+def edit_book(request, id):
+    book = BookEntry.objects.get(pk = id)
+
+    form = BookEntryForm(request.POST or None, instance=book)
+
+    if form.is_valid() and request.method == "POST":
+        # Save form and return to home page
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_book.html", context)
+
+def delete_book(request, id):
+    # Get book based on id
+    book = BookEntry.objects.get(pk = id)
+    # Delete book
+    book.delete()
+    # Return to home page
+    return HttpResponseRedirect(reverse('main:show_main'))
+```
+3. I then created an html file called "edit_book.html" as the editing page
+4. To perform URL routing, I imported the edit and delete functions to urls.py then added these paths:
+```
+urlpatterns = [
+...
+        path('edit-product/<uuid:id>', edit_book, name='edit_book'),
+        path('delete/<uuid:id>', delete_book, name='delete_book')
+]
+```
+5. I modified main.html to create an edit and delete button by adding:
+```
+<td>
+        <a href="{% url 'main:edit_book' book_entry.pk %}">
+            <button>
+                Edit
+            </button>
+        </a>
+    </td>
+    <td>
+        <a href="{% url 'main:delete_book' book_entry.pk %}">
+            <button>
+                Delete
+            </button>
+        </a>
+    </td>
+```
+
+### Customize the login, register, and add product pages
+BELOM
+
+### Customize the product list page
+BELOM
+
+### For each product card, create two buttons to edit and delete the product
+BELOM
+
+### Create a navigation bar
+BELOM
+
+
+
+## Explain the priority order of CSS selectors for an HTML element
+The order:
+1. Inline styles
+2. IDs (#id)
+3. Classes (.class)
+4. Element selectors (div, p, etc.)
+
+More specific selectors take precedence, and if specificity is equal, the order of appearance in the CSS (cascade) applies. Important (!important) overrides all other rules, regardless of specificity.
+
+## Why does responsive design become an important concept in web application development? Give examples of applications that have and have not implemented responsive design!
+Responsive design is crucial in web development to ensure a website looks and functions well on different devices and screen sizes. It uses flexible layouts, media queries, and relative units to adapt to various resolutions. For example, websites like Amazon or Airbnb are responsive and adjust smoothly across devices, while older sites or poorly maintained applications may not scale well, making them difficult to use on mobile devices.
+
+## Explain the differences between margin, border, and padding, and how to implement these three things!
+These are CSS properties used to control space around and inside elements. Margin is the space outside the element, border is the line around the element's box, and padding is the space inside the element between the content and the border. 
+
+You can implement them using properties like 
+```
+{
+  margin: 10px;, 
+  border: 2px solid black;, 
+  padding: 5px;, 
+}
+```
+each providing control over spacing and layout appearance.
+
+## Explain the concepts of flex box and grid layout along with their uses!
+Flexbox: a one-dimensional layout system (either horizontal or vertical) used to distribute space between items in a container, making it ideal for aligning items in rows or columns. 
+
+Grid: a two-dimensional layout system that allows for more complex layouts by defining rows and columns. 
+
+Flexbox is great for simple alignment and responsiveness, while Grid excels at creating more structured, grid-like layouts.
+</details>
