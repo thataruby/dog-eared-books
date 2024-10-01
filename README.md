@@ -793,7 +793,7 @@ For all my customizations, I followed a color pallete: green-900, white, and bla
 {% endblock %}
 ```
 
-### For each product card, create two buttons to edit and delete the product
+#### For each product card, create two buttons to edit and delete the product
 9. I customized my cards so that it resembles a book then added those two buttons by modifying 'card_book.html'
 ```html
 <div class="relative w-64 h-80 bg-white shadow-lg rounded-lg mb-2 border-2 border-gray-300 overflow-hidden flex transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
