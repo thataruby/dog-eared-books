@@ -834,7 +834,7 @@ For all my customizations, I followed a color pallete: green-900, white, and bla
   </div>
 ```
 
-### Create a navigation bar
+#### Create a navigation bar
 10. Created 'navbar.html' on /templates which consists of:
 ```html
 <nav class="bg-green-900 shadow-lg fixed top-0 left-0 z-40 w-screen">
