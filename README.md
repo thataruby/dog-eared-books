@@ -946,3 +946,172 @@ Grid: a two-dimensional layout system that allows for more complex layouts by de
 
 Flexbox is great for simple alignment and responsiveness, while Grid excels at creating more structured, grid-like layouts.
 </details>
+
+
+<details>
+<Summary><b>Assignment 6</b></summary>
+
+## Step-by-Step Project Implementation
+### Modify the codes in data cards to able to use AJAX GET
+1. In main.html, I added an asynchronous function that fetches the data using show_json.
+```js
+async function getBookEntries(){
+      return fetch("{% url 'main:show_json' %}").then((res) => res.json())
+  }
+```
+
+### Retrieve data using AJAX GET.
+2. In views.py, I modified my "show_json" function to retrieve the data
+```py
+def show_json(request):
+  data = BookEntry.objects.filter(user=request.user)
+  ...
+```
+
+### Create a button that opens a modal with a form for adding a book entry.
+3. In main.html, I created a button that redirects you to the modal
+```html
+<button data-modal-target="crudModal" data-modal-toggle="crudModal" class="btn bg-green-900 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
+  New Book Entry by AJAX
+</button>
+```
+
+### Create a new views function to add a new book entry to the database.
+4. In views.py, I imported csrf_exempt and require_POST and implemented it on a new function 'add_book_entry_ajax'. I also imported "strip_tags" to sanitize the entries:
+```py
+@csrf_exempt
+@require_POST
+def add_book_entry_ajax(request):
+    title = strip_tags(request.POST.get("title"))
+    author = strip_tags(request.POST.get("author"))
+    price = request.POST.get("price")
+    genre = strip_tags(request.POST.get("genre"))
+    summary = strip_tags(request.POST.get("summmary"))
+    user = request.user
+
+    new_book = BookEntry(
+        title=title, 
+        author=author,
+        price=price,
+        genre=genre,
+        summary=summary,
+        user=user
+    )
+    new_book.save()
+
+    return HttpResponse(b"CREATED", status=201)
+```
+
+### Create a /create-ajax/ path that routes to the new view function you created.
+5. In urls.py, I imported the previously made add_book_entry_ajax function and performed URL routing by adding:
+```py
+urlpatterns = [
+    ...
+    path('create-book-entry-ajax', add_book_entry_ajax, name='add_book_entry_ajax'),
+]
+```
+
+### Connect the form you created inside the modal to the /create-ajax/ path.
+6. In main.html, I created a new function called addBookEntry that uses the previously routed "add_book_entry_ajax" function:
+```js
+function addBookEntry() {
+    fetch("{% url 'main:add_book_entry_ajax' %}", {
+      method: "POST",
+      body: new FormData(document.querySelector('#bookEntryForm')),
+    })
+    .then(response => refreshBookEntries())
+
+    document.getElementById("bookEntryForm").reset(); 
+    document.querySelector("[data-modal-toggle='crudModal']").click();
+
+    return false;
+  }
+```
+
+### Perform asynchronous refresh on the main page to display the latest item list without reloading the entire main page.
+7. In main.hmtl, I created a new asynchronous function called refreshBookEntries that will reload the books container when new books are added without having to reload the whole page:
+```js
+async function refreshBookEntries() {
+    document.getElementById("book_entry_cards").innerHTML = "";
+    document.getElementById("book_entry_cards").className = "";
+    const bookEntries = await getBookEntries();
+    let htmlString = "";
+    let classNameString = "";
+
+    if (bookEntries.length === 0) {
+      classNameString = "flex flex-col items-center justify-center min-h-[24rem] p-6";
+      htmlString = `
+        <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
+          <img src="{% static 'image/very-sad.png' %}" alt="Sad face" class="w-32 h-32 mb-4"/>
+          <p class="text-center text-gray-600 mt-4">No book data available yet.</p>
+        </div>
+      `;
+    } else {
+      classNameString = "columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full";
+      bookEntries.forEach((item) => {
+        const title = DOMPurify.sanitize(item.fields.title);
+        const author = DOMPurify.sanitize(item.fields.author);
+        const genre = DOMPurify.sanitize(item.fields.genre);
+        const price = DOMPurify.sanitize(item.fields.price);
+        const summary = DOMPurify.sanitize(item.fields.summary);
+
+        htmlString += `
+          <div class="relative w-64 h-80 bg-white shadow-lg rounded-lg mb-2 border-2 border-gray-300 overflow-hidden flex transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+            <!-- left side -->
+            <div class="w-1/5 bg-green-900 text-white p-4 flex flex-col justify-center rounded-l-lg"></div>
+            
+            <!-- right side -->
+            <div class="p-4 flex-1 bg-gray-50 rounded-r-lg flex flex-col">
+              <!-- book title -->
+              <h3 class="font-bold text-xl text-gray-800 mb-1">${title}</h3>
+              <!-- book author -->
+              <p class="text-gray-600 italic mb-2">by ${author}</p>
+              <!-- book genre -->
+              <p class="text-green-700 font-semibold mb-1">Genre: ${genre}</p>
+              <!-- book price -->
+              <p class="text-green-600 font-bold mb-3">Price: $${price}</p>
+              <!-- book summary -->
+              <p class="text-gray-700 flex-grow overflow-scroll whitespace-normal text-sm">
+                ${summary}
+              </p>
+              <!-- edit and delete buttons -->
+              <div class="flex justify-end space-x-2 mt-2">
+                <a href="/edit-book/${item.pk}" class="bg-red-700 hover:bg-red-500 text-white rounded-full p-2 transition duration-300 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                </a>
+                <a href="/delete/${item.pk}" class="bg-red-800 hover:bg-red-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 012 0v6a1 1 11-2 0V8zm5-1a1 1 00-1 1v6a1 1 10 2 0V8a1 1 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("book_entry_cards").className = classNameString;
+    document.getElementById("book_entry_cards").innerHTML = htmlString;
+  }
+  
+  refreshBookEntries();
+```
+
+## Benefits of using JavaScript in developing web applications
+1. Interactivity: JavaScript allows developers to create dynamic and interactive user experiences (ex: form validation, dynamic content loading).
+2. Asynchronous operations: With AJAX, JavaScript can make requests to the server without reloading the page, enhancing performance and user experience.
+3. Cross-platform support: JavaScript runs in all modern browsers, making it a universal language for web applications.
+
+## Why use await when we call fetch()! What would happen if we don't use await?
+await ensures that the code waits for the fetch() promise to resolve before continuing. Without await, the code would continue executing before receiving the response, leading to potential errors when trying to use incomplete or unavailable data.
+
+## Why use the csrf_exempt decorator on the view used for AJAX POST?
+CSRF protection checks are enforced by default for security in Django. The csrf_exempt decorator disables this check for a specific view, typically needed when handling AJAX requests that may not include a CSRF token.
+
+## Why can't the sanitization be done just in the front-end?
+Front-end sanitization can be bypassed by attackers using tools like Postman or cURL. Back-end sanitization ensures that data is secure and trusted regardless of the source, preventing malicious input from reaching the database or application logic.
+
+</details>

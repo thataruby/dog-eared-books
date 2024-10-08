@@ -3,6 +3,7 @@
 
 {% block meta %}
 <title>Dog Eared Books</title>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
 {% endblock meta %}
 
 {% block content %}
@@ -28,24 +29,180 @@
   </div>
 
   <div class="flex justify-end mb-6">
-    <a href="{% url 'main:create_book_entry' %}" class="bg-green-900 hover:bg-green-900 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+    <!-- <a href="{% url 'main:create_book_entry' %}" class="bg-green-900 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 mx-4">
       Add New Book Entry
-    </a>
+    </a> -->
+    <button data-modal-target="crudModal" data-modal-toggle="crudModal" class="btn bg-green-900 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
+      Add New Book Entry by AJAX
+    </button>
   </div>
 
-  {% if not book_entries %}
-  <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
-    <img src="{% static 'image/very-sad.png' %}" alt="Sad face" class="w-32 h-32 mb-4"/>
-    <p class="text-center text-green-900 mt-4">Oh No! There are no books on the shelves.</p>
+  <div id="book_entry_cards"></div>
+  <div id="crudModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+    <div id="crudModalContent" class="relative bg-white rounded-lg shadow-lg w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between p-4 border-b rounded-t">
+        <h3 class="text-xl font-semibold text-gray-900">Add New Book Entry</h3>
+        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" id="closeModalBtn">
+          <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+      <!-- Modal body -->
+      <div class="px-6 py-4 space-y-6 form-style">
+        <form id="bookEntryForm">
+          <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" id="title" name="title" class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-green-900" placeholder="Enter book title" required>
+          </div>
+          <div class="mb-4">
+            <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+            <input type="text" id="author" name="author" class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-green-900" placeholder="Enter author name" required>
+          </div>
+          <div class="mb-4">
+            <label for="genre" class="block text-sm font-medium text-gray-700">Genre</label>
+            <input type="text" id="genre" name="genre" class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-green-900" placeholder="Enter book genre" required>
+          </div>
+          <div class="mb-4">
+            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+            <input type="number" id="price" name="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-green-900" placeholder="Enter price" required>
+          </div>
+          <div class="mb-4">
+            <label for="summary" class="block text-sm font-medium text-gray-700">Summary</label>
+            <textarea id="summary" name="summary" rows="3" class="mt-1 block w-full h-52 resize-none border border-gray-300 rounded-md p-2 hover:border-green-900" placeholder="Write a brief summary" required></textarea>
+          </div>
+        </form>
+      </div>
+      <!-- Modal footer -->
+      <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
+        <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" id="cancelButton">Cancel</button>
+        <button type="submit" id="submitBookEntry" form="bookEntryForm" class="bg-green-900 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Save</button>
+      </div>
+    </div>
   </div>
-  {% else %}
-  <div class="w-full px-4">
-    <div class="grid gap-6 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
-      {% for book_entry in book_entries %}
-        {% include 'card_book.html' with book_entry=book_entry %}
-      {% endfor %}
-    </div>    
-  </div>
-  {% endif %}
 </div>
+
+<script>
+  async function getBookEntries(){
+      return fetch("{% url 'main:show_json' %}").then((res) => res.json())
+  }
+
+  async function refreshBookEntries() {
+    document.getElementById("book_entry_cards").innerHTML = "";
+    document.getElementById("book_entry_cards").className = "";
+    const bookEntries = await getBookEntries();
+    let htmlString = "";
+    let classNameString = "";
+
+    if (bookEntries.length === 0) {
+      classNameString = "flex flex-col items-center justify-center min-h-[24rem] p-6";
+      htmlString = `
+        <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
+          <img src="{% static 'image/very-sad.png' %}" alt="Sad face" class="w-32 h-32 mb-4"/>
+          <p class="text-center text-gray-600 mt-4">No book data available yet.</p>
+        </div>
+      `;
+    } else {
+      classNameString = "columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full";
+      bookEntries.forEach((item) => {
+        const title = DOMPurify.sanitize(item.fields.title);
+        const author = DOMPurify.sanitize(item.fields.author);
+        const genre = DOMPurify.sanitize(item.fields.genre);
+        const price = DOMPurify.sanitize(item.fields.price);
+        const summary = DOMPurify.sanitize(item.fields.summary);
+
+        htmlString += `
+          <div class="relative w-64 h-80 bg-white shadow-lg rounded-lg mb-2 border-2 border-gray-300 overflow-hidden flex transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+            <!-- left side -->
+            <div class="w-1/5 bg-green-900 text-white p-4 flex flex-col justify-center rounded-l-lg"></div>
+            
+            <!-- right side -->
+            <div class="p-4 flex-1 bg-gray-50 rounded-r-lg flex flex-col">
+              <!-- book title -->
+              <h3 class="font-bold text-xl text-gray-800 mb-1">${title}</h3>
+              <!-- book author -->
+              <p class="text-gray-600 italic mb-2">by ${author}</p>
+              <!-- book genre -->
+              <p class="text-green-700 font-semibold mb-1">Genre: ${genre}</p>
+              <!-- book price -->
+              <p class="text-green-600 font-bold mb-3">Price: $${price}</p>
+              <!-- book summary -->
+              <p class="text-gray-700 flex-grow overflow-scroll whitespace-normal text-sm">
+                ${summary}
+              </p>
+              <!-- edit and delete buttons -->
+              <div class="flex justify-end space-x-2 mt-2">
+                <a href="/edit-book/${item.pk}" class="bg-red-700 hover:bg-red-500 text-white rounded-full p-2 transition duration-300 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                </a>
+                <a href="/delete/${item.pk}" class="bg-red-800 hover:bg-red-600 text-white rounded-full p-2 transition duration-300 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 012 0v6a1 1 11-2 0V8zm5-1a1 1 00-1 1v6a1 1 10 2 0V8a1 1 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("book_entry_cards").className = classNameString;
+    document.getElementById("book_entry_cards").innerHTML = htmlString;
+  }
+  
+  refreshBookEntries();
+
+  const modal = document.getElementById('crudModal');
+  const modalContent = document.getElementById('crudModalContent');
+
+  function showModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modal.classList.remove('hidden'); 
+      setTimeout(() => {
+        modalContent.classList.remove('opacity-0', 'scale-95');
+        modalContent.classList.add('opacity-100', 'scale-100');
+      }, 50); 
+  }
+
+  function hideModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modalContent.classList.remove('opacity-100', 'scale-100');
+      modalContent.classList.add('opacity-0', 'scale-95');
+
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150); 
+  }
+
+  document.getElementById("cancelButton").addEventListener("click", hideModal);
+  document.getElementById("closeModalBtn").addEventListener("click", hideModal);
+
+  function addBookEntry() {
+    fetch("{% url 'main:add_book_entry_ajax' %}", {
+      method: "POST",
+      body: new FormData(document.querySelector('#bookEntryForm')),
+    })
+    .then(response => refreshBookEntries())
+
+    document.getElementById("bookEntryForm").reset(); 
+    document.querySelector("[data-modal-toggle='crudModal']").click();
+
+    return false;
+  }
+
+  document.getElementById("bookEntryForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    addBookEntry();
+  })
+</script>
+
 {% endblock content %}
