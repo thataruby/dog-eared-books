@@ -105,7 +105,7 @@
         </div>
       `;
     } else {
-      classNameString = "columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full";
+      classNameString = "flex flex-wrap gap-7 w-full";
       bookEntries.forEach((item) => {
         const title = DOMPurify.sanitize(item.fields.title);
         const author = DOMPurify.sanitize(item.fields.author);
