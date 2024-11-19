@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core import serializers
 from main.forms import BookEntryForm
 from main.models import BookEntry
@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+import json
 
 
 @login_required(login_url='/login')
@@ -133,3 +134,23 @@ def add_book_entry_ajax(request):
     new_book.save()
 
     return HttpResponse(b"CREATED", status=201)
+
+@csrf_exempt
+def create_book_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_mood = BookEntry.objects.create(
+            user=request.user,
+            title=data["title"],
+            author=data["author"],
+            genre=data["genre"],
+            summary=data["summary"],
+            price=int(data["price"]),
+        )
+
+        new_mood.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
